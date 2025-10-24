@@ -1,0 +1,30 @@
+{
+  "name": "dryrun",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.17.1",
+    "express": "^5.1.0",
+    "nanoid": "^5.1.6",
+    "node": "^25.0.0",
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "typescript": "^5.9.3",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.9.1",
+    "prisma": "^6.17.1"
+  }
+}

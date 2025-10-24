@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Room" ADD COLUMN     "limit" INTEGER NOT NULL DEFAULT 5;

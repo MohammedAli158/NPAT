@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User{
+  id String @id @default(nanoid())
+  Name String 
+  rooms Room[]
+  rounds Round[]
+  datas Data[]
+}
+model Room{
+  id String @id @default(nanoid())
+  Name String @unique
+  users User[]
+  rounds Round[]
+  limit Int @default(5)
+}
+model Round{
+  id String @id @default(nanoid())
+  users User[]
+  Room Room? @relation(fields: [roomId], references: [id])
+  roomId String
+  Data Data[]
+}
+model Data {
+  id      String  @id @default(nanoid())
+  user    User?   @relation(fields: [userId], references: [id])
+  userId  String?
+  round   Round?  @relation(fields: [roundId], references: [id])
+  roundId String?
+  gameName String
+  gamePlace String
+  gameAnimal String
+  gameThing String
+  gameScore Int? @default(5)
+}
