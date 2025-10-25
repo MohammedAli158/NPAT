@@ -25,6 +25,7 @@ model Room{
   users User[]
   rounds Round[]
   limit Int @default(5)
+  socketId SocketId?
 }
 model Round{
   id String @id @default(nanoid())
@@ -44,4 +45,10 @@ model Data {
   gameAnimal String
   gameThing String
   gameScore Int? @default(5)
+}
+model SocketId{
+  id String @id @default(nanoid())
+  room Room?  @relation(fields: [roomId], references: [id])
+  roomId String? @unique
+  array String[]
 }
