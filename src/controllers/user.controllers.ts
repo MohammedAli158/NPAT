@@ -1,6 +1,7 @@
 import type {Request,Response} from "express"
 import { prisma} from "../index.ts"
 import { nanoid } from "nanoid";
+import { updateData } from "../types/Types.ts";
 
 
 
@@ -19,6 +20,7 @@ const UserController = {
         return res.json({"status":"okay"})
     },
     createRoom : async (userId:string,roomName:string,socketId:string,limit:number=5)=>{
+        console.log("Join Room triggered")
         const room = await prisma.room.upsert({
             where:{
                 Name:roomName
@@ -66,12 +68,31 @@ const UserController = {
         })
         return room
     },
-    createRound : async(roomId:string,userIds:string[])=>{
-        const round = await prisma.round.create({
-            data:{
+    createRound : async(roomName:string,userIds:string[],roundId:string)=>{
+        const roomid = await prisma.room.findFirst({
+            where:{
+                Name:roomName
+            }
+        })
+        if (roomid) {
+            const round = await prisma.round.upsert({
+                where:{
+                    id:roundId
+                },
+                update:{
+                    Room:{
+                    connect:{
+                       id:roomid.id
+                    }
+                },
+                users:{
+                    connect: userIds.map(id => ({ id }))
+                }
+                },
+            create:{
                 Room:{
                     connect:{
-                        id:roomId
+                       id:roomid.id
                     }
                 },
                 users:{
@@ -83,8 +104,10 @@ const UserController = {
             }
         })
         return round
+        }
     },
     createData : async(userId:string,gameName:string,gamePlace:string,gameAnimal:string,gameThing:string,roundId:string)=>{
+        console.log("shak yakeen")
         const data = await prisma.data.create({
              data: {
                     gameName,
@@ -98,9 +121,12 @@ const UserController = {
                 connect: { id: roundId }
                 }
   }
-});
+}); 
+        console.log("shak is still shak")
+
 
     },
+
    disconnectHandler: async (socketId: string) => {
     setTimeout(async () => {
         const remove = await prisma.socketId.findFirst({
@@ -116,8 +142,40 @@ const UserController = {
             data: { array: { set: newArray } }
         });
     }, 6666);
-}
+},
+    // saveValidatedData : async(socketId: string)
+    updateData: async(req:Request,res:Response)=>{
+        const data:updateData = req.body
+        await prisma.data.updateMany({
+            where:{
+                userId:data.userId,roundId:data.roundId
+            },
+            data:{
+                gameName:data.gameName,gameAnimal:data.gameAnimal,gamePlace:data.gamePlace,gameThing:data.gameThing,gameScore:data.gameScore
+            }
+        })
+    },
+//     results : async(req:Request,res:Response)=>{
+//         const {userId,roundIds} = req.body;
+//         let tuple = await prisma.data.findMany({
+//             where:{
+//                 roundId :{
+//                     in:roundIds
+//                 }
+                
+//             }
+//             ,orderBy:userId
+//         })
+//       if (tuple) {
+//          const grouped = tuple.reduce((acc, curr) => {
+//   if (!acc[curr.userId]) acc[curr.userId] = [];
+//   acc[curr.userId].push(curr);
+//   return acc;
+// }, {});
+//       }
 
+        
+    // }
     
     
 }

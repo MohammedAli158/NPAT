@@ -33,6 +33,7 @@ model Round{
   Room Room? @relation(fields: [roomId], references: [id])
   roomId String
   Data Data[]
+  createdAt DateTime @default(now())
 }
 model Data {
   id      String  @id @default(nanoid())
