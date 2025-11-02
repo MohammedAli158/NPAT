@@ -1,7 +1,7 @@
 import type {Request,Response} from "express"
 import { prisma} from "../index.ts"
 import { nanoid } from "nanoid";
-import { updateData } from "../types/Types.ts";
+import type { updateData } from "../types/Types.ts"
 
 
 
@@ -17,7 +17,7 @@ const UserController = {
             
         })
         console.log("This is the created user",user)
-        return res.json({"status":"okay"})
+        return res.json({"status":"okay","user":user})
     },
     createRoom : async (userId:string,roomName:string,socketId:string,limit:number=5)=>{
         console.log("Join Room triggered")
