@@ -2,17 +2,14 @@ import type {Request,Response} from "express"
 import { prisma} from "../index.ts"
 import { nanoid } from "nanoid";
 import type { updateData } from "../types/Types.ts"
-
-
-
 const UserController = {
     createUser :async(req:Request,res:Response)=>  {
         console.log(req.body,"This is req")
-        const {Name} = req.body;
+        const {Name,socketId} = req.body;
         const id = nanoid()
         const user = await prisma.user.create({
             data:{
-                Name,id
+                Name,id,socketId
             }
             
         })
@@ -127,21 +124,25 @@ const UserController = {
 
     },
 
-   disconnectHandler: async (socketId: string) => {
+   disconnectHandler: async (socketId: string):Promise<string>=> {
+    let remove,arbitrary:string;
     setTimeout(async () => {
-        const remove = await prisma.socketId.findFirst({
+        console.log("This is scoket id from which iam finding room Id",socketId)
+         remove = await prisma.socketId.findFirst({
             where: { array: { has: socketId } }
         });
 
         if (!remove || !remove.array) return; // nothing to remove
 
         const newArray = remove.array.filter(id => id !== socketId);
-
+        console.log ("This is the room Id",remove.roomId," which contain socket id",socketId)
         await prisma.socketId.update({
             where: { id: remove.id },
             data: { array: { set: newArray } }
         });
+        arbitrary = remove && remove.roomId ? remove.roomId : arbitrary
     }, 6666);
+    
 },
     // saveValidatedData : async(socketId: string)
     updateData: async(req:Request,res:Response)=>{

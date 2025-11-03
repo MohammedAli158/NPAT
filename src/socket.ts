@@ -26,7 +26,13 @@ export class SocketCreator{
                 console.log("Joining room")
                 const room =await UserController.createRoom(userId,roomName,socket.id)
                 socket.join(room.Name)
-                this.io.to(roomName).emit("Joined Room",room)
+                this.io.to(socket.id).emit("Joined Room",room)
+                const userNameToBeDisplayedAtFrontEnd = await prisma.user.findFirst({
+                    where:{
+                        id:userId
+                    }
+                })
+                this.io.to(room.Name).emit("Someone Joined",userNameToBeDisplayedAtFrontEnd)
                 
         })
         socket.on("Submit Room",(data)=>{  
@@ -42,10 +48,14 @@ export class SocketCreator{
                     connect:{
                         id:userId
                     }
+                },Room:{
+                    connect:{
+                        Name:roomName
+                    }
                 }
             }
          })
-         socket.to(roomName).emit("Force Create",{roundId:round.id})
+         this.io.to(roomName).emit("Force Create",{roundId:round.id})
         })
         socket.on("Join Round",async(data)=>{
         const {roundId,userId} = data;
@@ -106,8 +116,26 @@ export class SocketCreator{
 
         socket.on("disconnect",async(data)=>{
             console.log("deleting..")
-            await UserController.disconnectHandler(socket.id)
-            console.log("deleted")
+            const roomId = await UserController.disconnectHandler(socket.id)
+            if (roomId=="a") {
+                console.log("a hai value yarooo")
+                return 
+            }
+            console.log("deleted","this is room id",roomId)
+            const roomName = await prisma.room.findFirst({
+                where:{
+                    id:roomId
+                }
+            })
+            console.log("Thi is the room name",roomName)
+            const username = await prisma.user.findFirst({
+                where:{
+                    socketId:socket.id
+                }
+            })
+            console.log("This is room name : ", roomName?.Name,username)
+            this.io.to("text-abc").emit("Left Room",{username:username?.Name})
+            
         })
         
     }

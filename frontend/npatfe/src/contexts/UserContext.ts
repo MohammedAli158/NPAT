@@ -7,7 +7,7 @@ setUserId:React.Dispatch<React.SetStateAction<string>>;
 roomName: string | null;
 setRoomName : React.Dispatch<React.SetStateAction<string>>;
 roundIds: string[] | null;
-setRoundIds:React.Dispatch<React.SetStateAction<[string]>>;
+setRoundIds:React.Dispatch<React.SetStateAction<string[]>>;
 }
 export const UserContext = createContext<UserContextType>({
   name: '',

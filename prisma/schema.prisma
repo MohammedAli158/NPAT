@@ -18,6 +18,7 @@ model User{
   rooms Room[]
   rounds Round[]
   datas Data[]
+  socketId String 
 }
 model Room{
   id String @id @default(nanoid())
