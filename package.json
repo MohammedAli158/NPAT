@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon"
+    "start": "npx nodemon",
+     "build": "prisma generate && tsc",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
