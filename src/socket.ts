@@ -2,6 +2,7 @@ import {Server as HTTPServer} from "http"
 import {Server,Socket} from "socket.io"
 import UserController from "./controllers/user.controllers.ts";
 import {prisma} from "./index.ts"
+import { getRandomAlphabet} from "./util/RandomAlphabet.ts";
 export class SocketCreator{
     public static instance: SocketCreator
     public io:Server
@@ -40,25 +41,36 @@ export class SocketCreator{
             //Submit Room and save data recieved in db and make another room and send that rooms id
             socket.emit("Submitted Room",{"Room":"Room56"})
         })
-        socket.on("Create Round",async(data)=>{
+        socket.on("Create Round",async(data)=>{ 
          const {roomName,userId} = data;
-         const round = await prisma.round.create({
-            data:{
-                users:{
-                    connect:{
-                        id:userId
-                    }
-                },Room:{
-                    connect:{
-                        Name:roomName
-                    }
-                }
+         let round;
+         let roomId = await prisma.room.findFirst({
+            where:{
+                Name:roomName
             }
          })
-         this.io.to(roomName).emit("Force Create",{roundId:round.id})
+         try {
+             round = await prisma.round.create({
+               data:{
+                   users:{
+                       connect:{
+                           id:userId
+                       }
+                   },Room:{
+                       connect:{
+                           id:roomId?.id
+                       }
+                   }
+               }
+            })
+         } catch (error) {
+            console.log(error)
+         }
+        console.log("Emitting Force Create")
+         this.io.to(roomName).emit("Force Create",{roundId:round?.id})
         })
         socket.on("Join Round",async(data)=>{
-        const {roundId,userId} = data;
+        const {roundId,userId,roomName} = data;
         const joinedRound = await prisma.round.update({
             where:{
                 id:roundId
@@ -69,9 +81,14 @@ export class SocketCreator{
                         id:userId
                     }
                 }
+            },include:{
+                users:true
             }
         })
-
+        if (joinedRound.users.length === 1) {
+  this.io.to(roomName).emit("Letter", { letter: getRandomAlphabet() });
+}
+       
         })
         socket.on("Submit Round",async(data)=>{
             const {gamePlace,gameAnimal,gameThing,gameName,userId,roundId,roomName} = data;

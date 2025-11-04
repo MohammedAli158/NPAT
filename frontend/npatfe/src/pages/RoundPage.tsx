@@ -1,27 +1,27 @@
-import {  useContext, useEffect, useRef, useState } from "react"
+import {  useContext,  useRef, useState } from "react"
 import { socket } from "../socket/Socket"
 import { UserContext } from "../contexts/UserContext"
 
 
 const RoundPage = () =>{
-    const alphabets = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    const [isDisabled,setIsDisabled] = useState<boolean>(false)
-    const [remainingAlphabets,setRemainingAlphabets] = useState<string[]>(alphabets)
+  const [isDisabled,setIsDisabled] = useState<boolean>(false)
+socket.on("Letter",(data)=>{
+  console.log("Letter is emitted",data)
+  const {letter} = data;
+  setCurrentAlphabet(letter)
+})
     const [currentAlphabet,setCurrentAlphabet] = useState<string>("")
-    const [count,setCount ] = useState<number>(26)
+    
   const nameRef = useRef<HTMLInputElement>(null);
 
     const placeRef = useRef<HTMLInputElement>(null);
     const animalRef =useRef<HTMLInputElement>(null);
   const thingRef = useRef<HTMLInputElement>(null);  
-   useEffect(()=>{
-        setCurrentAlphabet(remainingAlphabets[Math.ceil (count*Math.random ())])
-    },[count])
     const {userId} = useContext(UserContext)
     const handleSubmitOnclick = ()=>{
-        const array = remainingAlphabets.filter(t=>t!=currentAlphabet)
-        setRemainingAlphabets(array)
-       setCount(prev => prev - 1);
+        // const array = remainingAlphabets.filter(t=>t!=currentAlphabet)
+      //   setRemainingAlphabets(array)
+      //  setCount(prev => prev - 1);
        setIsDisabled(true)
        const details = {
         gameName :nameRef.current ? nameRef.current.value : " ",

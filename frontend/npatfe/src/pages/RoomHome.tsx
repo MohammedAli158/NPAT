@@ -17,20 +17,34 @@ const RoomHome = ()=>{
     })
     const nav = useNavigate()
     const {roomName,userId,setRoundIds,roundIds}= useContext(UserContext)
-    const handleOnPlay = ()=>{
+    const handleOnPlay = async()=>{
         socket.emit("Create Round",{roomName,userId})
-        socket.on("Force Create",(data)=>{
-            const roundId:string=data.string
+        
+        
+    }
+    // let roundId;
+    // useEffect(()=>{
+    //     if (roundIds) {
+    //         roundId = roundIds[roundIds.length - 1]
+    //     }
+    // },[roundIds])
+    socket.on("Force Create",(data)=>{
+            const roundId:string=data.roundId
+            console.log(roundId,"is rondid")
             if (roundIds) {
                 setRoundIds([...roundIds,roundId]) 
             }else{
-            setRoundIds([roundId])
+                setRoundIds([roundId])
             }
+            if (roundIds?.length === 5) {
+                setRoundsFinish(true);
+            } else {
+                nav('/round-page');
+            }
+            
+            console.log("Emitted Join Round",roundId)
+            socket.emit("Join Round",{roundId,userId,roomName})
         })
-        roundIds?.length==5 ? setRoundsFinish(true) : nav('/round-page')
-        
-
-    }
     return (
         <div className="flex flex-col justify-center items-center " >
                 this is room home
@@ -50,6 +64,8 @@ const RoomHome = ()=>{
                             </div>
                         )
                     }) : " "
+                }{
+                    roundsFinish ? <h1>Rounds FINISHED...</h1> : " "
                 }
                 <button className="bg-gray-500 rounded-full px-5 text-white" onClick={handleOnPlay} >Start Playing</button>
         </div>
