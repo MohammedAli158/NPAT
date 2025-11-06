@@ -17,7 +17,11 @@ const UserController = {
         return res.json({"status":"okay","user":user})
     },
     createRoom : async (userId:string,roomName:string,socketId:string,limit:number=5)=>{
-        console.log("Join Room triggered")
+        const existing = await prisma.room.findUnique({
+            where: { Name:roomName },
+        });
+    
+        const created = !existing;
         const room = await prisma.room.upsert({
             where:{
                 Name:roomName
@@ -63,7 +67,8 @@ const UserController = {
             array:[socketId]
          }
         })
-        return room
+        
+        return {room,created}
     },
     createRound : async(roomName:string,userIds:string[],roundId:string)=>{
         const roomid = await prisma.room.findFirst({

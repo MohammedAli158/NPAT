@@ -26,50 +26,58 @@ export class SocketCreator{
                 const {userId,roomName} = data;
                 console.log("Joining room")
                 const room =await UserController.createRoom(userId,roomName,socket.id)
-                socket.join(room.Name)
-                this.io.to(socket.id).emit("Joined Room",room)
+                socket.join(room.room.Name)
+                console.log("socket-",socket.id,"has joined",room.room.Name)
+                this.io.to(socket.id).emit("Joined Room",room.room)
                 const userNameToBeDisplayedAtFrontEnd = await prisma.user.findFirst({
                     where:{
                         id:userId
                     }
                 })
-                this.io.to(room.Name).emit("Someone Joined",userNameToBeDisplayedAtFrontEnd)
+                if (room.created) {
+                    socket.emit("Owner",{data:true})
+                }
+                this.io.to(room.room.Name).emit("Someone Joined",{userNameToBeDisplayedAtFrontEnd})
                 
-        })
-        socket.on("Submit Room",(data)=>{  
-            console.log(data,"submitting data")
-            //Submit Room and save data recieved in db and make another room and send that rooms id
-            socket.emit("Submitted Room",{"Room":"Room56"})
-        })
-        socket.on("Create Round",async(data)=>{ 
-         const {roomName,userId} = data;
-         let round;
-         let roomId = await prisma.room.findFirst({
-            where:{
-                Name:roomName
+                
+            })
+            socket.on("Submit Room",(data)=>{  
+                console.log(data,"submitting data")
+                //Submit Room and save data recieved in db and make another room and send that rooms id
+                socket.emit("Submitted Room",{"Room":"Room56"})
+            })
+            socket.on("Create Round",async(data)=>{ 
+                const {roomName,userId} = data;
+                let round;
+                let roomId = await prisma.room.findFirst({
+                    where:{
+                        Name:roomName
+            },include:{
+                users:true
             }
-         })
-         try {
-             round = await prisma.round.create({
-               data:{
-                   users:{
-                       connect:{
-                           id:userId
-                       }
+        })
+        
+        try {
+            round = await prisma.round.create({
+                data:{
+                    users:{
+                        connect:{
+                            id:userId
+                        }
                    },Room:{
                        connect:{
                            id:roomId?.id
-                       }
-                   }
-               }
+                        }
+                    }
+                }
             })
-         } catch (error) {
+        } catch (error) {
             console.log(error)
-         }
+        }
         console.log("Emitting Force Create")
-         this.io.to(roomName).emit("Force Create",{roundId:round?.id})
-        })
-        socket.on("Join Round",async(data)=>{
+        this.io.to(roomName).emit("Force Create",{roundId:round?.id})
+    })
+    socket.on("Join Round",async(data)=>{
         const {roundId,userId,roomName} = data;
         const joinedRound = await prisma.round.update({
             where:{
@@ -86,35 +94,26 @@ export class SocketCreator{
             }
         })
         if (joinedRound.users.length === 1) {
-  this.io.to(roomName).emit("Letter", { letter: getRandomAlphabet() });
+            const R = getRandomAlphabet()
+            this.io.to(roomName).emit("Letter", { letter: R });
 }
-       
-        })
-        socket.on("Submit Round",async(data)=>{
-            const {gamePlace,gameAnimal,gameThing,gameName,userId,roundId,roomName} = data;
-            const createdData = await UserController.createData(userId, gameName, gamePlace, gameAnimal, gameThing, roundId)
-            
-            const sock = await prisma.socketId.findFirst({
-                where:{
-                    array:{
-                        has:socket.id
-                    }
-                }
+
+
+})
+socket.on("Letters From FrontEnd",(data)=>{
+                console.log("sending letters to all people",data.roomName)
+                this.io.to(data.roomName).emit("Finalized Letters Array",data.data)
             })
-            let index:number = -5
+        socket.on("Submit Round",async(data)=>{
+            const {roomName} = data;
+           this.io.to(roomName).emit("Force Submit Round")
             
-            if (sock && sock.array) {
-                let 
-                index = sock.array.indexOf(socket.id);
-                socket.to(sock.array[(index+1)%sock.array.length]).emit("Validation",data)
-            }
-            socket.to(roomName).emit("Force Submit Round")
 
         })
         socket.on("Force Submit Round Socket",async(data)=>{
             const {gamePlace,gameAnimal,gameThing,gameName,userId,roundId,roomName} = data;
             const createdData = await UserController.createData(userId, gameName, gamePlace, gameAnimal, gameThing, roundId)
-            
+            console.log("created data and sent",data,roomName)
             const sock = await prisma.socketId.findFirst({
                 where:{
                     array:{
