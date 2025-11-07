@@ -1,6 +1,9 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import type { ChangeEvent } from "react";
 import { socket } from "../socket/Socket"
+import axios from "axios";
+import { UserContext } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 // import type { Incame } from "../types/Types";
 const ValidatePage = () =>{
     const [nameScore,setNameScore] = useState<number>(0)
@@ -8,9 +11,24 @@ const ValidatePage = () =>{
     const [animalScore,setAnimalScore] = useState<number>(0)
     const [thingScore,setThingScore] = useState<number>(0)
     const [incameData,setIncameData] = useState<object>()
-    const handleSubmit = (e:ChangeEvent<HTMLInputElement>) =>{
+    const {roundIds,roomName} = useContext(UserContext)
+    let userId:string
+    const nav = useNavigate();
+    const handleSubmit =async (e:ChangeEvent<HTMLInputElement>) =>{
       e.target.disabled = true;
       //request to server to save the data
+      const gameScore = nameScore + placecore + animalScore + thingScore;
+      const toSend = {
+         roundId : roundIds ? roundIds[roundIds.length-1] : " " ,userId,gameScore
+      }
+     try {
+        await axios.post(import.meta.env.VITE_SERVER_PATH+"/api/user/submit-validated-data",toSend)
+        console.log("navigating...")
+        socket.emit("Ready",{roomName})
+      nav("/ready-page")
+     } catch (error) {
+      console.error(error)
+     }
     }
     const handleNameOnchange = (e: ChangeEvent<HTMLInputElement>) =>{
       const num = parseInt(e.target.value)
@@ -31,6 +49,7 @@ setThingScore(num)
     
 socket.on("Validation",(data)=>{
            setIncameData(data)
+           userId = data.userId
            console.log(data,"data came")
         })
     return (

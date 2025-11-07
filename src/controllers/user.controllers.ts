@@ -152,15 +152,19 @@ const UserController = {
     // saveValidatedData : async(socketId: string)
     updateData: async(req:Request,res:Response)=>{
         const data:updateData = req.body
+        console.log("updating..",data.gameScore)
         await prisma.data.updateMany({
             where:{
                 userId:data.userId,roundId:data.roundId
             },
             data:{
-                gameName:data.gameName,gameAnimal:data.gameAnimal,gamePlace:data.gamePlace,gameThing:data.gameThing,gameScore:data.gameScore
+                gameScore:data.gameScore
             }
         })
-    },
+         console.log("updated")
+         return res.json({"status":"okay"})
+    }
+    ,
 //     results : async(req:Request,res:Response)=>{
 //         const {userId,roundIds} = req.body;
 //         let tuple = await prisma.data.findMany({

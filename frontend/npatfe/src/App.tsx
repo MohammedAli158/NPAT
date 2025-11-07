@@ -7,6 +7,8 @@ import { UserContext, } from './contexts/UserContext'
 import RoundPage from './pages/RoundPage'
 import RoomHome from './pages/RoomHome'
 import ValidatePage from './pages/ValidatePage'
+import ReadyPage from './pages/ReadyPage'
+import ResultsPage from './pages/ResultsPage'
 function App() {
   const [name,setName] = useState<string>("bob-paris")
   const [userId,setUserId] = useState<string>("bobackdsauhfjis")
@@ -23,6 +25,8 @@ function App() {
       <Route path='/room-home' element={<RoomHome/>} />
       <Route path='/round-page' element={<RoundPage/>} />
       <Route path='/validate-page' element={<ValidatePage/>} />
+      <Route path="/ready-page" element={<ReadyPage/>}/>
+      <Route path="/results-page" element={<ResultsPage/>}/>
     </Routes>
     </UserContext.Provider>
   )

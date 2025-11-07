@@ -3,9 +3,11 @@ import {Server,Socket} from "socket.io"
 import UserController from "./controllers/user.controllers.ts";
 import {prisma} from "./index.ts"
 import { getRandomAlphabet} from "./util/RandomAlphabet.ts";
+import type{ Count } from "./types/Types.ts";
 export class SocketCreator{
     public static instance: SocketCreator
     public io:Server
+    public count:Count;
     constructor(server:HTTPServer){
         SocketCreator.instance = this;
         this.io = new Server(server,{
@@ -13,6 +15,7 @@ export class SocketCreator{
                 origin:'*'
             }
         })
+        this.count={};
        this.io.on('connect', (socket) => {
   console.log('[server] socket connected', socket.id);
   socket.onAny((ev, ...args) => console.log('[server] onAny', socket.id, ev, args));
@@ -24,6 +27,7 @@ export class SocketCreator{
         socket.on('Join Room',async(data)=>{
                 //Join room using data base and return some details from query which were required
                 const {userId,roomName} = data;
+                this.count[roomName] = 0
                 console.log("Joining room")
                 const room =await UserController.createRoom(userId,roomName,socket.id)
                 socket.join(room.room.Name)
@@ -129,8 +133,19 @@ socket.on("Letters From FrontEnd",(data)=>{
                 socket.to(sock.array[(index+1)%sock.array.length]).emit("Validation",data)
             }
         })
-
+        
+        socket.on("Ready",async(data)=>{
+            const {roomName}  =data;
+            this.count[roomName]++;
+            const iin = await this.io.in(roomName).fetchSockets();
+            
+            if (this.count[roomName]>=iin.length) {
+                this.io.to(roomName).emit("Next Round")
+                this.count[roomName] = 0;
+            }
+        })
         socket.on("disconnect",async(data)=>{
+            //delete all the datas created and this.count[roomName]
             console.log("deleting..")
             const roomId = await UserController.disconnectHandler(socket.id)
             if (roomId=="a") {
