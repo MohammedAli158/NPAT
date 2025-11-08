@@ -52,7 +52,9 @@ const RoundPage = () => {
     }
 
     socket.on("Force Submit Round", handleForceSubmit)
-    return () => socket.off("Force Submit Round", handleForceSubmit)
+   return () => {
+  socket.off("Force Submit Round", handleForceSubmit)
+}
   }, [roundIds, roomName, userId, nav])
 
   const handleSubmitOnclick = () => {

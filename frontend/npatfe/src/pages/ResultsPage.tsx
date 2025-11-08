@@ -30,10 +30,7 @@ const ResultsPage = ()=>{
         init()
        
     },[])
-        useEffect(()=>{
-        console.log(names)
-       
-    },[])
+
     setTimeout(() => {
          if (isOwner) {
             socket.emit("Cleanup",{roomName,roundIds})
