@@ -4,5 +4,5 @@ const userRoutes = Router()
 userRoutes.post('/create-user',UserController.createUser)
 userRoutes.post('/submit-data',UserController.updateData)
 userRoutes.post('/submit-validated-data',UserController.updateData)
-
+userRoutes.post("/results",UserController.results)
 export default userRoutes

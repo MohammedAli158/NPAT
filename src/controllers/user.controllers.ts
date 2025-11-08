@@ -152,8 +152,8 @@ const UserController = {
     // saveValidatedData : async(socketId: string)
     updateData: async(req:Request,res:Response)=>{
         const data:updateData = req.body
-        console.log("updating..",data.gameScore)
-        await prisma.data.updateMany({
+        console.log("updating..",data.gameScore,data.userId)
+         await prisma.data.updateMany({
             where:{
                 userId:data.userId,roundId:data.roundId
             },
@@ -161,28 +161,52 @@ const UserController = {
                 gameScore:data.gameScore
             }
         })
-         console.log("updated")
+         console.log("updated",data.roundId,data.userId)
          return res.json({"status":"okay"})
     }
     ,
-//     results : async(req:Request,res:Response)=>{
-//         const {userId,roundIds} = req.body;
-//         let tuple = await prisma.data.findMany({
-//             where:{
-//                 roundId :{
-//                     in:roundIds
-//                 }
-                
-//             }
-//             ,orderBy:userId
-//         })
-//       if (tuple) {
-//          const grouped = tuple.reduce((acc, curr) => {
-//   if (!acc[curr.userId]) acc[curr.userId] = [];
-//   acc[curr.userId].push(curr);
-//   return acc;
-// }, {});
-//       }
+    results : async(req:Request,res:Response)=>{
+       const {roomName} = req.body;
+       let socketId = await prisma.socketId.findFirst({
+        where:{
+            room:{
+                Name:roomName
+            }
+        }
+       })
+       let userIds = []
+       let userNames=[]
+       let scores =[]
+       if (socketId) {
+        for (let index = 0; index < socketId.array.length; index++) {
+            let user = await prisma.user.findFirst({
+                where:{
+                    socketId:socketId.array[index]
+                }
+            })
+            userNames[index] = user?.Name
+            userIds[index] = user?.id
+        }
+       
+        for (let i = 0; i < userIds.length; i++) {
+            // console.log("Finding for user : ",userNames[i])
+            scores[i] = await prisma.data.aggregate({
+            _sum:{
+                gameScore:true
+            },
+            where:{
+                userId:userIds[i]
+            }
+           })
+            console.log("this is score for ",userNames[i],scores[i]._sum)
+        }
+
+
+        return res.json({userNames,scores})
+       }
+
+
+      }
 
         
     // }

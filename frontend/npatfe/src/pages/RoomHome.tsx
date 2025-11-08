@@ -8,7 +8,7 @@ const RoomHome = () => {
   const [joinedArray, setJoinedArray] = useState<string[]>([])
   const [leftArray, setLeftArray] = useState<string[]>([])
   const [roundsFinish, setRoundsFinish] = useState<boolean>(false)
-  const { roomName, userId, isOwner, setRoundIds, roundIds, setLetters, setIsOwner } = useContext(UserContext)
+  const { roomName, userId, isOwner, setRoundIds, roundIds,letters, setLetters, setIsOwner } = useContext(UserContext)
   const nav = useNavigate()
 
   useEffect(() => {
@@ -26,7 +26,12 @@ const RoomHome = () => {
 
     socket.on("Finalized Letters Array", (data) => {
       console.log("Received Finalized Letters Array:", data)
-      setLetters(data)
+      if (letters && letters.length==5) {
+        console.log()
+      }else{
+
+        setLetters(data)
+      }
     })
 
     socket.on("Force Create", (data) => {
@@ -34,7 +39,10 @@ const RoomHome = () => {
       if (roundIds) setRoundIds((prev) => [...(prev || []), roundId])
       else setRoundIds([roundId])
 
-      if ((roundIds?.length || 0) + 1 === 5) setRoundsFinish(true)
+      if ((roundIds?.length || 0) + 1 == 5) {
+        setRoundsFinish(true)
+        nav("/results-page")
+      }
       else nav("/round-page")
 
       socket.emit("Join Round", { roundId, userId, roomName })
@@ -62,24 +70,34 @@ const RoomHome = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#00BCD4] via-[#E57373] to-[#FFEB3B] text-gray-900">
-      <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg w-80 text-center space-y-4">
-        <h2 className="text-2xl font-semibold">Room Home</h2>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-zinc-950 text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.03),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.02),transparent_50%)]"></div>
 
-        {joinedArray.map((t, i) => (
-          <div key={i} className="text-green-700">{t} - Joined</div>
-        ))}
+      <div className="relative z-10 bg-zinc-900 border border-zinc-800 p-12 rounded-2xl shadow-2xl flex flex-col items-center gap-8 max-w-md w-full mx-4">
+        <div className="text-center space-y-2">
+          <h2 className="text-4xl font-bold text-white tracking-tight">Room Home</h2>
+        </div>
 
-        {leftArray.map((t, i) => (
-          <div key={i} className="text-red-600">{t} - Left</div>
-        ))}
+        <div className="w-full space-y-3">
+          {joinedArray.map((t, i) => (
+            <div key={i} className="text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-lg px-4 py-2 text-sm">{t} - Joined</div>
+          ))}
+
+          {leftArray.map((t, i) => (
+            <div key={i} className="text-rose-400 bg-rose-400/10 border border-rose-400/20 rounded-lg px-4 py-2 text-sm">{t} - Left</div>
+          ))}
+        </div>
 
         {roundsFinish && (
-          <h1 className="text-lg font-bold text-[#E57373]">Rounds FINISHED...</h1>
+          <div className="text-center space-y-2">
+            <div className="w-4 h-4 rounded-full bg-rose-500 animate-pulse mx-auto"></div>
+            <h1 className="text-lg font-bold text-rose-500">Rounds FINISHED...</h1>
+          </div>
         )}
 
         <button
-          className={"bg-[#FFEB3B] text-gray-800 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-400 transition" + (isOwner ? " " : " hidden" )}
+          className={"w-full bg-white text-zinc-950 font-semibold py-3.5 px-6 rounded-lg hover:bg-zinc-100 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]" + (isOwner ? " " : " hidden" )+ (roundsFinish ? " hidden" : " " )}
           onClick={handleOnPlay}
         >
           Start Playing
