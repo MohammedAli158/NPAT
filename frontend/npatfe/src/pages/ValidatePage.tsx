@@ -6,11 +6,14 @@ import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
 const ValidatePage = () =>{
+  type thisobj = {
+    gameName:string,gamePlace:string,gameAnimal:string,gameThing:string
+  }
   const [nameScore,setNameScore] = useState<number>(0)
   const [placecore,setPlaceScore] = useState<number>(0)
   const [animalScore,setAnimalScore] = useState<number>(0)
   const [thingScore,setThingScore] = useState<number>(0)
-  const [incameData,setIncameData] = useState<object>()
+  const [incameData,setIncameData] = useState<thisobj>()
   const {roundIds,roomName} = useContext(UserContext)
 const [userId, setUserId] = useState<string>("")
     const nav = useNavigate();
@@ -29,8 +32,9 @@ const [userId, setUserId] = useState<string>("")
         console.log("This is userId naaa",userId)
         console.log(data,"data came")
       })
-      const handleSubmit =async (e:ChangeEvent<HTMLInputElement>) =>{
-        e.target.disabled = true;
+      const handleSubmit =async (e:React.MouseEvent<HTMLButtonElement>) =>{
+         const button = e.currentTarget as HTMLButtonElement;
+          button.disabled = true
         const gameScore = nameScore + placecore + animalScore + thingScore;
       console.log("this is total score being sent",userId)
       const toSend = {

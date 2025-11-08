@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import { UserContext } from "../contexts/UserContext"
 import { useNavigate } from "react-router-dom"
 import { socket } from "../socket/Socket"

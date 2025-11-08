@@ -147,7 +147,7 @@ const UserController = {
         });
         arbitrary = remove && remove.roomId ? remove.roomId : arbitrary
     }, 6666);
-    
+    return "ok"
 },
     // saveValidatedData : async(socketId: string)
     updateData: async(req:Request,res:Response)=>{
@@ -189,7 +189,7 @@ const UserController = {
         }
        
         for (let i = 0; i < userIds.length; i++) {
-            // console.log("Finding for user : ",userNames[i])
+            console.log("Finding for user : ",userNames[i])
             scores[i] = await prisma.data.aggregate({
             _sum:{
                 gameScore:true

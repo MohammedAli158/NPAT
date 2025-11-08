@@ -33,13 +33,13 @@ const ResultsPage = ()=>{
         useEffect(()=>{
         console.log(names)
        
-    },[names])
-    // setTimeout(() => {
-    //      if (isOwner) {
-    //         socket.emit("Cleanup",{roomName,roundIds})
-    //     }
-    //     socket.emit("Cleanup User",{userId})
-    // }, 6666);
+    },[])
+    setTimeout(() => {
+         if (isOwner) {
+            socket.emit("Cleanup",{roomName,roundIds})
+        }
+        socket.emit("Cleanup User",{userId})
+    }, 6666);
     
     return (
         <div className="min-h-screen flex flex-col justify-center items-center bg-zinc-950 text-white relative overflow-hidden">
