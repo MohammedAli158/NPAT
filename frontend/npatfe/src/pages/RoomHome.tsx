@@ -13,7 +13,7 @@ const RoomHome = () => {
 
   useEffect(() => {
     socket.on("Someone Joined", (data) => {
-      setJoinedArray((prev) => [...prev, data.userNameToBeDisplayedAtFrontEnd.Name])
+      setJoinedArray((prev) => [...prev, data.userNameToBeDisplayedAtFrontEnd?.Name])
     })
 
     socket.on("Owner", () => {
