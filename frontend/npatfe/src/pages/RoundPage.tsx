@@ -68,7 +68,7 @@ const RoundPage = () => {
     const details = { roomName }
     console.log("Submitting details:", details)
     socket.emit("Submit Round", details)
-    nav("/validate-page")
+    
   }
 
   return (
