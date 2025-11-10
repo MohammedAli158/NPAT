@@ -5,11 +5,12 @@ import {PrismaClient} from "@prisma/client"
 import userRoutes from "./routes/user.routes.ts"
 import { SocketCreator } from "./socket.ts"
 import cors from "cors"
-
+import dotenv from "dotenv"
 export const prisma = new PrismaClient()
  const app:Application = express()
 app.use(express.json());
 const httpServer = http.createServer(app)
+dotenv.config()
 new SocketCreator(httpServer)
 
 app.use(cors())

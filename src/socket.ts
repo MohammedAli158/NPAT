@@ -14,8 +14,10 @@ export class SocketCreator {
     SocketCreator.instance = this;
     this.io = new Server(server, {
       cors: {
-        origin: "*",
+        origin: ["https://name-place-animal-thing.vercel.app" ],
+        methods: ["GET", "POST"],
       },
+       transports: ["websocket", "polling"],
     });
     this.count = {};
     this.io.on("connect", (socket) => {
@@ -35,6 +37,7 @@ export class SocketCreator {
           where: { id: userId },
         });
         if (room.created) socket.emit("Owner", { data: true });
+        console.log(userNameToBeDisplayedAtFrontEnd,"is emitted someone joined")
         this.io.to(room.room.Name).emit("Someone Joined", {
           userNameToBeDisplayedAtFrontEnd,
         });
