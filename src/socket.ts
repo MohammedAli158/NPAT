@@ -18,8 +18,8 @@ export class SocketCreator {
         methods: ["GET", "POST"],
       },
        transports: ["websocket", "polling"],
-        pingTimeout: 30000,   
-         pingInterval: 10000,
+        pingTimeout: 8000,   
+         pingInterval: 4000,
     });
     this.count = {};
     this.io.on("connect", (socket) => {
